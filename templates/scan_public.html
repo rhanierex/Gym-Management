@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan QR Code - Check In/Out</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .scan-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            animation: slideUp 0.5s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .scan-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .scan-header .logo {
+            font-size: 64px;
+            margin-bottom: 10px;
+        }
+        
+        .scan-header h1 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .scan-header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .scan-form {
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        /* Visual feedback untuk input */
+        .form-group input.valid {
+            border-color: #28a745 !important;
+            background: #d4edda !important;
+        }
+        
+        .form-group input.invalid {
+            border-color: #ffc107 !important;
+            background: #fff3cd !important;
+        }
+        
+        .input-helper {
+            font-size: 12px;
+            color: #666;
+            margin-top: 8px;
+            line-height: 1.6;
+        }
+        
+        .input-helper strong {
+            color: #333;
+        }
+        
+        /* Contoh format */
+        .format-example {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .format-example p {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1565c0;
+        }
+        
+        .format-example-code {
+            background: white;
+            padding: 12px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            text-align: center;
+            border: 2px dashed #667eea;
+            color: #667eea;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        .btn-scan {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-scan:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-scan:active {
+            transform: translateY(0);
+        }
+        
+        .btn-scan:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+        }
+        
+        .alert-warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            color: #856404;
+        }
+        
+        .member-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .member-card h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 20px;
+        }
+        
+        .member-info {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+        }
+        
+        .member-info table {
+            width: 100%;
+        }
+        
+        .member-info td {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .member-info td:first-child {
+            font-weight: 600;
+            color: #666;
+            width: 40%;
+        }
+        
+        .member-info td:last-child {
+            color: #333;
+        }
+        
+        .member-info tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-active {
+            background: #d4edda;
+            color: #28a745;
+        }
+        
+        .status-expired {
+            background: #f8d7da;
+            color: #dc3545;
+        }
+        
+        .status-checkin {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .status-checkout {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .time-display {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 48px;
+            font-weight: 700;
+            color: #667eea;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .duration-display {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 24px;
+            color: #666;
+        }
+        
+        .btn-reset {
+            width: 100%;
+            padding: 12px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+        
+        .btn-reset:hover {
+            background: #5a6268;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .instructions {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+        }
+        
+        .instructions p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .instructions ul {
+            text-align: left;
+            color: #666;
+            font-size: 13px;
+            line-height: 1.8;
+            list-style: none;
+            padding: 0;
+        }
+        
+        .instructions ul li {
+            padding: 5px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .instructions ul li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .scan-container {
+                padding: 30px 20px;
+            }
+            
+            .scan-header h1 {
+                font-size: 24px;
+            }
+            
+            .time-display {
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scan-container">
+        <div class="scan-header">
+            <div class="logo">🏋️</div>
+            <h1>Gym Check In/Out</h1>
+            <p>Scan QR Code atau ketik ID member untuk check-in/out</p>
+        </div>
+        
+        {% if success %}
+            <div class="alert alert-success">
+                ✅ {{ success }}
+            </div>
+        {% endif %}
+        
+        {% if error %}
+            <div class="alert alert-error">
+                ❌ {{ error }}
+            </div>
+        {% endif %}
+        
+        {% if member %}
+            {% if action == 'check_in' %}
+                <div class="time-display">{{ attendance.check_in.strftime('%H:%M') }}</div>
+                <div class="member-card">
+                    <h3>✅ CHECK-IN BERHASIL</h3>
+                    <div class="member-info">
+                        <table>
+                            <tr>
+                                <td>ID Member:</td>
+                                <td><strong>{{ member.member_id }}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Nama:</td>
+                                <td><strong>{{ member.nama }}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Type:</td>
+                                <td>{{ member.type_member.replace('_', ' ').title() }}</td>
+                            </tr>
+                            <tr>
+                                <td>Waktu Masuk:</td>
+                                <td><strong>{{ attendance.check_in.strftime('%d-%m-%Y %H:%M:%S') }}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Status:</td>
+                                <td><span class="status-badge status-checkin">Check-in</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <button class="btn-reset" onclick="window.location.href='{{ url_for('scan_public') }}'">🔄 Scan Lagi</button>
+                </div>
+            {% elif action == 'check_out' %}
+                <div class="time-display">{{ attendance.check_out.strftime('%H:%M') }}</div>
+                <div class="duration-display">Durasi: {{ "%.2f"|format(duration) }} jam</div>
+                <div class="member-card">
+                    <h3>👋 CHECK-OUT BERHASIL</h3>
+                    <div class="member-info">
+                        <table>
+                            <tr>
+                                <td>ID Member:</td>
+                                <td><strong>{{ member.member_id }}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Nama:</td>
+                                <td><strong>{{ member.nama }}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Waktu Masuk:</td>
+                                <td>{{ attendance.check_in.strftime('%d-%m-%Y %H:%M:%S') }}</td>
+                            </tr>
+                            <tr>
+                                <td>Waktu Keluar:</td>
+                                <td><strong>{{ attendance.check_out.strftime('%d-%m-%Y %H:%M:%S') }}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Durasi:</td>
+                                <td><strong>{{ "%.2f"|format(duration) }} jam</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Status:</td>
+                                <td><span class="status-badge status-checkout">Check-out</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <button class="btn-reset" onclick="window.location.href='{{ url_for('scan_public') }}'">🔄 Scan Lagi</button>
+                </div>
+            {% elif expired %}
+                <div class="member-card">
+                    <h3>⚠️ MEMBERSHIP EXPIRED</h3>
+                    <div class="member-info">
+                        <table>
+                            <tr>
+                                <td>ID Member:</td>
+                                <td><strong>{{ member.member_id }}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Nama:</td>
+                                <td><strong>{{ member.nama }}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Type:</td>
+                                <td>{{ member.type_member.replace('_', ' ').title() }}</td>
+                            </tr>
+                            <tr>
+                                <td>Tanggal Expire:</td>
+                                <td><strong>{{ member.tanggal_expire.strftime('%d-%m-%Y') }}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Status:</td>
+                                <td><span class="status-badge status-expired">Expired</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="alert alert-warning" style="margin-top: 15px;">
+                        ℹ️ Silakan perpanjang membership untuk melanjutkan akses gym.
+                    </div>
+                    <button class="btn-reset" onclick="window.location.href='{{ url_for('scan_public') }}'">🔄 Scan Lagi</button>
+                </div>
+            {% endif %}
+        {% else %}
+            <!-- Format Example -->
+            <div class="format-example">
+                <p>📝 Contoh Format ID Member:</p>
+                <div class="format-example-code">
+                    GYM-MG698144
+                </div>
+            </div>
+            
+            <form method="POST" class="scan-form" id="scanForm">
+                <div class="form-group">
+                    <label for="qr_data">📱 Scan QR Code atau Ketik ID Member:</label>
+                    <input 
+                        type="text" 
+                        id="qr_data" 
+                        name="qr_data" 
+                        placeholder="GYM-XXXXXX" 
+                        required 
+                        autofocus
+                        autocomplete="off"
+                    >
+                    <div class="input-helper">
+                        💡 <strong>Cara 1:</strong> Scan QR Code member<br>
+                        💡 <strong>Cara 2:</strong> Ketik manual: GYM-[ID Member]<br>
+                        💡 <strong>Tips:</strong> Bisa ketik tanpa "GYM-" (otomatis ditambahkan)
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-scan" id="submitBtn">
+                    🔍 SCAN & CHECK IN/OUT
+                </button>
+            </form>
+            
+            <div class="instructions">
+                <p>📋 Instruksi Penggunaan:</p>
+                <ul>
+                    <li>Scan QR Code member atau ketik ID manual</li>
+                    <li>Klik tombol "SCAN & CHECK IN/OUT"</li>
+                    <li>Sistem otomatis check-in atau check-out</li>
+                    <li>Input akan berubah hijau jika format benar</li>
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="footer">
+        <p>🏋️ Gym Management System</p>
+        <p style="font-size: 12px; margin-top: 5px; opacity: 0.8;">
+            © 2026 - Powered by Sabrani
+        </p>
+    </div>
+    
+    <script>
+        // Auto-focus input setelah scan
+        document.addEventListener('DOMContentLoaded', function() {
+            const input = document.getElementById('qr_data');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (input) {
+                input.focus();
+                
+                // Auto-uppercase
+                input.addEventListener('input', function(e) {
+                    let value = e.target.value.toUpperCase();
+                    
+                    // Auto-add GYM- prefix jika user ketik langsung ID
+                    if (value.length > 0 && !value.startsWith('GYM-')) {
+                        // Jika ketik MG123456 atau 123456
+                        if (value.match(/^(MG)?[0-9]/)) {
+                            if (!value.startsWith('MG')) {
+                                value = 'GYM-MG' + value;
+                            } else {
+                                value = 'GYM-' + value;
+                            }
+                        }
+                    }
+                    
+                    e.target.value = value;
+                });
+                
+                // Visual feedback
+                input.addEventListener('input', function(e) {
+                    const value = e.target.value;
+                    
+                    // Validasi format: GYM-MG123456 (GYM-MG + 6 digit)
+                    if (value.match(/^GYM-MG[0-9]{6}$/)) {
+                        e.target.classList.add('valid');
+                        e.target.classList.remove('invalid');
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                        }
+                    } else if (value.length > 0) {
+                        e.target.classList.add('invalid');
+                        e.target.classList.remove('valid');
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                        }
+                    } else {
+                        e.target.classList.remove('valid', 'invalid');
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                        }
+                    }
+                });
+                
+                // Auto-submit setelah format lengkap dan valid
+                input.addEventListener('input', function(e) {
+                    const value = e.target.value;
+                    // Format valid: GYM-MG123456 (minimal 14 karakter)
+                    if (value.match(/^GYM-MG[0-9]{6}$/)) {
+                        setTimeout(() => {
+                            console.log('Auto-submitting form...');
+                            e.target.form.submit();
+                        }, 500); // Delay 500ms untuk visual feedback
+                    }
+                });
+            }
+            
+            // Play sound saat berhasil check-in/out
+            {% if success %}
+                try {
+                    // Simple beep sound
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.value = 800;
+                    oscillator.type = 'sine';
+                    
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.5);
+                } catch (e) {
+                    console.log('Audio not supported:', e);
+                }
+            {% endif %}
+        });
+        
+        // Keyboard support untuk barcode scanner hardware
+        let scanBuffer = '';
+        let scanTimeout;
+        
+        document.addEventListener('keypress', function(e) {
+            const input = document.getElementById('qr_data');
+            
+            // Jika input sudah focus, biarkan normal input
+            if (document.activeElement === input) {
+                return;
+            }
+            
+            // Barcode scanner biasanya ketik sangat cepat
+            clearTimeout(scanTimeout);
+            
+            if (e.key === 'Enter') {
+                // Selesai scan, isi ke input
+                if (scanBuffer.length > 0 && input) {
+                    input.value = scanBuffer.toUpperCase();
+                    
+                    // Trigger input event untuk validasi
+                    const event = new Event('input', { bubbles: true });
+                    input.dispatchEvent(event);
+                    
+                    // Auto-submit jika valid
+                    if (scanBuffer.match(/^GYM-MG[0-9]{6}$/i)) {
+                        setTimeout(() => {
+                            document.getElementById('scanForm').submit();
+                        }, 300);
+                    }
+                    
+                    scanBuffer = '';
+                }
+            } else {
+                scanBuffer += e.key;
+            }
+            
+            // Reset buffer setelah 100ms (human typing lebih lambat)
+            scanTimeout = setTimeout(() => {
+                scanBuffer = '';
+            }, 100);
+        });
+    </script>
+</body>
+</html>

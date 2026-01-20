@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Member - Gym Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <h1>🏋️ Muscle Gym</h1>
+            <div class="nav-content">
+                <ul>
+                    <li><a href="{{ url_for('index') }}">🏠 Home</a></li>
+                    <li><a href="{{ url_for('register') }}">➕ Register</a></li>
+                    <li><a href="{{ url_for('perpanjangan') }}">🔄 Perpanjangan</a></li>
+                    <li><a href="{{ url_for('laporan') }}">📊 Laporan</a></li>
+                    <li><a href="{{ url_for('scan_qrcode') }}">📱 Scan QR</a></li>
+                    <li><a href="{{ url_for('attendance_list') }}">📋 Kehadiran</a></li>
+                </ul>
+                <div class="user-info">
+                    <a href="{{ url_for('profile') }}" class="user-name">👤 {{ session.nama_lengkap }}</a>
+                    <a href="{{ url_for('logout') }}" class="btn-logout">🚪 Logout</a>
+                </div>
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <span id="theme-icon">🌙</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="form-container">
+            <h2>Form Register Member Baru</h2>
+            
+            <form method="POST" action="{{ url_for('register') }}">
+                <div class="form-group">
+                    <label>Type Member:</label>
+                    <select name="type_member" required>
+                        <option value="bulanan">Bulanan (1 Bulan)</option>
+                        <option value="3_bulan">3 Bulan</option>
+                        <option value="6_bulan">6 Bulan</option>
+                        <option value="tahunan">Tahunan (12 Bulan)</option>
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Biaya Bulanan:</label>
+                        <input type="number" name="biaya_bulanan" step="0.01" placeholder="Contoh: 300000" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Biaya Pendaftaran:</label>
+                        <input type="number" name="biaya_pendaftaran" step="0.01" placeholder="Contoh: 50000" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Nama Lengkap:</label>
+                    <input type="text" name="nama" placeholder="Masukkan nama lengkap" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Alamat:</label>
+                    <textarea name="alamat" rows="3" placeholder="Masukkan alamat lengkap" required></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Jenis Kelamin:</label>
+                        <select name="jenis_kelamin" required>
+                            <option value="">Pilih...</option>
+                            <option value="Laki-laki">Laki-laki</option>
+                            <option value="Perempuan">Perempuan</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Pekerjaan:</label>
+                        <input type="text" name="pekerjaan" placeholder="Contoh: Karyawan Swasta" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>No. Handphone:</label>
+                    <input type="tel" name="no_handphone" placeholder="Contoh: 081234567890" required>
+                </div>
+                
+                <button type="submit" class="btn-submit">Daftar Member</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            const themeIcon = document.getElementById('theme-icon');
+            
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '☀️';
+            }
+        });
+    </script>
+</body>
+</html>

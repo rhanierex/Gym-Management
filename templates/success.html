@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrasi Berhasil - Gym Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .success-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+        }
+        
+        .success-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .success-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .success-header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .success-icon {
+            font-size: 80px;
+            margin-bottom: 15px;
+            animation: bounceIn 0.6s ease;
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .success-header h2 {
+            font-size: 32px;
+            margin: 0 0 10px 0;
+        }
+        
+        .success-header p {
+            font-size: 16px;
+            opacity: 0.9;
+            margin: 0;
+        }
+        
+        .success-content {
+            padding: 40px;
+        }
+        
+        .member-detail-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .member-detail-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            font-size: 13px;
+            color: #6c757d;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        
+        .detail-value {
+            font-size: 16px;
+            color: #212529;
+            font-weight: 600;
+        }
+        
+        .detail-value.highlight {
+            color: #667eea;
+            font-family: 'Courier New', monospace;
+            font-size: 20px;
+        }
+        
+        .detail-value.price {
+            color: #28a745;
+            font-size: 24px;
+        }
+        
+        /* QR Code Section - Improved */
+        .qr-code-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .qr-code-section h3 {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .qr-code-section p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        
+        .qr-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+        }
+        
+        .qr-image-box {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            display: inline-block;
+            transition: transform 0.3s;
+        }
+        
+        .qr-image-box:hover {
+            transform: scale(1.05);
+        }
+        
+        .qr-image-box img {
+            display: block;
+            width: 280px;
+            height: 280px;
+            border-radius: 8px;
+        }
+        
+        .qr-id-display {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+        
+        .qr-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn-qr-action {
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        
+        .btn-qr-download {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-qr-download:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
+        
+        .btn-qr-print {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-qr-print:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+        }
+        
+        .qr-instructions {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        
+        .qr-instructions h4 {
+            color: white;
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .qr-instructions ul {
+            color: rgba(255, 255, 255, 0.95);
+            padding-left: 25px;
+            line-height: 1.8;
+        }
+        
+        .qr-instructions li {
+            margin-bottom: 8px;
+        }
+        
+        /* Action Buttons */
+        .action-buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .btn-action {
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: #667eea;
+            border-color: #667eea;
+        }
+        
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .qr-image-box img {
+                width: 220px;
+                height: 220px;
+            }
+            
+            .qr-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .btn-qr-action {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .action-buttons-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media print {
+            nav, .action-buttons-grid, .qr-buttons {
+                display: none !important;
+            }
+            
+            .success-page {
+                background: white;
+            }
+            
+            .qr-code-section {
+                background: white;
+                color: black;
+            }
+            
+            .qr-code-section h3, .qr-code-section p {
+                color: black;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <h1>🏋️ Muscle Gym</h1>
+            <div class="nav-content">
+                <ul>
+                    <li><a href="{{ url_for('index') }}">🏠 Home</a></li>
+                    <li><a href="{{ url_for('register') }}">➕ Register</a></li>
+                    <li><a href="{{ url_for('perpanjangan') }}">🔄 Perpanjangan</a></li>
+                    <li><a href="{{ url_for('laporan') }}">📊 Laporan</a></li>
+                    <li><a href="{{ url_for('scan_qrcode') }}">📱 Scan QR</a></li>
+                    <li><a href="{{ url_for('attendance_list') }}">📋 Kehadiran</a></li>
+                </ul>
+                <div class="user-info">
+                    <a href="{{ url_for('profile') }}" class="user-name">👤 {{ session.nama_lengkap }}</a>
+                    <a href="{{ url_for('logout') }}" class="btn-logout">🚪 Logout</a>
+                </div>
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <span id="theme-icon">🌙</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="success-page">
+        <div class="success-wrapper">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}" style="margin-bottom: 20px;">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="success-card">
+                <div class="success-header">
+                    <div class="success-icon">✅</div>
+                    <h2>Proses Berhasil!</h2>
+                    <p>Data member telah berhasil disimpan dalam sistem</p>
+                </div>
+
+                <div class="success-content">
+                    <div class="member-detail-section">
+                        <h3>📋 Detail Member</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">ID Member</span>
+                                <span class="detail-value highlight">{{ member.member_id }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Nama Lengkap</span>
+                                <span class="detail-value">{{ member.nama }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Jenis Kelamin</span>
+                                <span class="detail-value">{{ member.jenis_kelamin }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">No. Handphone</span>
+                                <span class="detail-value">{{ member.no_handphone }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Type Member</span>
+                                <span class="detail-value">{{ member.type_member.replace('_', ' ').title() }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Pekerjaan</span>
+                                <span class="detail-value">{{ member.pekerjaan }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Tanggal Daftar</span>
+                                <span class="detail-value">{{ member.tanggal_daftar.strftime('%d-%m-%Y') }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Tanggal Expire</span>
+                                <span class="detail-value">{{ member.tanggal_expire.strftime('%d-%m-%Y') }}</span>
+                            </div>
+                            <div class="detail-item" style="grid-column: 1 / -1;">
+                                <span class="detail-label">Total Biaya</span>
+                                <span class="detail-value price">Rp {{ "{:,.0f}".format(member.total) }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if qr_image %}
+                    <div class="qr-code-section">
+                        <h3>📱 QR Code Member</h3>
+                        <p>Simpan atau print QR Code ini untuk check-in/check-out di gym</p>
+                        
+                        <div class="qr-container">
+                            <div class="qr-image-box">
+                                <img src="data:image/png;base64,{{ qr_image }}" 
+                                     alt="QR Code {{ member.member_id }}" 
+                                     id="qrImage">
+                            </div>
+                            
+                            <div class="qr-id-display">
+                                {{ member.member_id }}
+                            </div>
+                            
+                            <div class="qr-buttons">
+                                <button onclick="downloadQR()" class="btn-qr-action btn-qr-download">
+                                    📥 Download QR Code
+                                </button>
+                                <button onclick="window.print()" class="btn-qr-action btn-qr-print">
+                                    🖨️ Print QR Code
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="qr-instructions">
+                            <h4>📋 Cara Menggunakan QR Code:</h4>
+                            <ul>
+                                <li>Download atau print QR Code di atas</li>
+                                <li>Member membawa QR Code saat datang ke gym</li>
+                                <li>Staff scan QR Code untuk check-in/check-out</li>
+                                <li>Sistem otomatis mencatat kehadiran member</li>
+                            </ul>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="action-buttons-grid">
+                        <a href="{{ url_for('generate_qrcode', member_id=member.member_id) }}" class="btn-action btn-primary">
+                            📱 Lihat QR Full Page
+                        </a>
+                        <a href="{{ url_for('edit_member', member_id=member.member_id) }}" class="btn-action btn-secondary">
+                            ✏️ Edit Data Member
+                        </a>
+                        <a href="{{ url_for('index') }}" class="btn-action btn-success">
+                            🏠 Kembali ke Dashboard
+                        </a>
+                        <a href="{{ url_for('register') }}" class="btn-action btn-outline">
+                            ➕ Daftar Member Baru
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            const themeIcon = document.getElementById('theme-icon');
+            
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '☀️';
+            }
+        });
+        
+        function downloadQR() {
+            const img = document.getElementById('qrImage');
+            const link = document.createElement('a');
+            link.href = img.src;
+            link.download = 'QRCode_{{ member.member_id }}_{{ member.nama.replace(" ", "_") }}.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Visual feedback
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '✅ Downloaded!';
+            btn.style.background = '#28a745';
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = '';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

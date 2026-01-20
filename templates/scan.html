@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan QR Code - Gym Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .scan-page-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .scan-card {
+            background: var(--color-surface);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            margin-top: 30px;
+        }
+        
+        .scan-card h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+            color: var(--color-text);
+        }
+        
+        .scan-form-group {
+            margin-bottom: 30px;
+        }
+        
+        .scan-form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 16px;
+            color: var(--color-text);
+        }
+        
+        .scan-form-group input {
+            width: 100%;
+            padding: 18px;
+            border: 2px solid var(--color-border);
+            border-radius: 12px;
+            font-size: 18px;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            background: var(--color-bg-primary);
+            color: var(--color-text);
+            text-transform: uppercase;
+        }
+        
+        .scan-form-group input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+        }
+        
+        .scan-form-group input.valid {
+            border-color: #28a745 !important;
+            background: #d4edda !important;
+        }
+        
+        .scan-form-group input.invalid {
+            border-color: #ffc107 !important;
+            background: #fff3cd !important;
+        }
+        
+        .btn-scan-submit {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-scan-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .scan-result {
+            margin-top: 30px;
+            padding: 30px;
+            background: var(--color-bg-primary);
+            border-radius: 12px;
+            border: 2px solid var(--color-border);
+        }
+        
+        .scan-result h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 22px;
+            color: var(--color-text);
+        }
+        
+        .scan-result-success {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        }
+        
+        .scan-result-error {
+            border-color: #dc3545;
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+        }
+        
+        .result-time {
+            text-align: center;
+            font-size: 48px;
+            font-weight: 700;
+            color: #667eea;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 20px;
+        }
+        
+        .result-info {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.result-info table {
+    width: 100%;
+}
+
+.result-info td {
+    padding: 10px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #212529; /* 👈 TAMBAH INI - Warna hitam untuk value */
+}
+
+.result-info td:first-child {
+    font-weight: 600;
+    color: #495057; /* 👈 UBAH INI - Warna abu gelap untuk label */
+    width: 40%;
+}
+
+.result-info td:last-child {
+    font-weight: 600; /* 👈 TAMBAH INI - Bold untuk value */
+    color: #212529; /* 👈 TAMBAH INI - Warna hitam tegas */
+}
+
+        .scan-instructions {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 30px;
+        }
+        
+        .scan-instructions h4 {
+            margin-bottom: 15px;
+            color: #1565c0;
+        }
+        
+        .scan-instructions ol {
+            padding-left: 20px;
+            color: #1565c0;
+        }
+        
+        .scan-instructions li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+        
+        .format-example {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .format-example p {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1565c0;
+        }
+        
+        .format-example-code {
+            background: white;
+            padding: 12px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            text-align: center;
+            border: 2px dashed #667eea;
+            color: #667eea;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <h1>🏋️ Muscle Gym</h1>
+            <div class="nav-content">
+                <ul>
+                    <li><a href="{{ url_for('index') }}">🏠 Home</a></li>
+                    <li><a href="{{ url_for('register') }}">➕ Register</a></li>
+                    <li><a href="{{ url_for('perpanjangan') }}">🔄 Perpanjangan</a></li>
+                    <li><a href="{{ url_for('laporan') }}">📊 Laporan</a></li>
+                    <li><a href="{{ url_for('scan_qrcode') }}">📱 Scan QR</a></li>
+                    <li><a href="{{ url_for('attendance_list') }}">📋 Kehadiran</a></li>
+                </ul>
+                <div class="user-info">
+                    <a href="{{ url_for('profile') }}" class="user-name">👤 {{ session.nama_lengkap }}</a>
+                    <a href="{{ url_for('logout') }}" class="btn-logout">🚪 Logout</a>
+                </div>
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <span id="theme-icon">🌙</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container scan-page-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="scan-card">
+            <h2>📱 Scan QR Code Member</h2>
+            
+            {% if member %}
+                {% if action == 'check_in' %}
+                    <div class="scan-result scan-result-success">
+                        <h3>✅ CHECK-IN BERHASIL</h3>
+                        <div class="result-time">{{ attendance.check_in.strftime('%H:%M') }}</div>
+                        <div class="result-info">
+                            <table>
+                                <tr>
+                                    <td><strong>ID Member:</strong></td>
+                                    <td>{{ member.member_id }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Nama:</strong></td>
+                                    <td><strong>{{ member.nama }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Jenis Kelamin:</strong></td>
+                                    <td>{{ member.jenis_kelamin }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Type Member:</strong></td>
+                                    <td>{{ member.type_member.replace('_', ' ').title() }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Waktu Check-in:</strong></td>
+                                    <td><strong>{{ attendance.check_in.strftime('%d-%m-%Y %H:%M:%S') }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Status:</strong></td>
+                                    <td><span class="badge badge-info">Sedang di Gym</span></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <a href="{{ url_for('scan_qrcode') }}" class="btn-submit" style="margin-top: 20px; display: block; text-align: center; text-decoration: none;">
+                            🔄 Scan Member Lain
+                        </a>
+                    </div>
+                {% elif action == 'check_out' %}
+                    <div class="scan-result scan-result-success">
+                        <h3>👋 CHECK-OUT BERHASIL</h3>
+                        <div class="result-time">{{ attendance.check_out.strftime('%H:%M') }}</div>
+                        <div class="result-info">
+                            <table>
+                                <tr>
+                                    <td><strong>ID Member:</strong></td>
+                                    <td>{{ member.member_id }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Nama:</strong></td>
+                                    <td><strong>{{ member.nama }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Waktu Check-in:</strong></td>
+                                    <td>{{ attendance.check_in.strftime('%d-%m-%Y %H:%M:%S') }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Waktu Check-out:</strong></td>
+                                    <td><strong>{{ attendance.check_out.strftime('%d-%m-%Y %H:%M:%S') }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Durasi:</strong></td>
+                                    <td><strong>{{ "%.2f"|format((attendance.check_out - attendance.check_in).total_seconds() / 3600) }} jam</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Status:</strong></td>
+                                    <td><span class="badge badge-success">Selesai</span></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <a href="{{ url_for('scan_qrcode') }}" class="btn-submit" style="margin-top: 20px; display: block; text-align: center; text-decoration: none;">
+                            🔄 Scan Member Lain
+                        </a>
+                    </div>
+                {% elif expired %}
+                    <div class="scan-result scan-result-error">
+                        <h3>⚠️ MEMBERSHIP EXPIRED</h3>
+                        <div class="result-info">
+                            <table>
+                                <tr>
+                                    <td><strong>ID Member:</strong></td>
+                                    <td>{{ member.member_id }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Nama:</strong></td>
+                                    <td><strong>{{ member.nama }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Type Member:</strong></td>
+                                    <td>{{ member.type_member.replace('_', ' ').title() }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Tanggal Expire:</strong></td>
+                                    <td><strong style="color: #dc3545;">{{ member.tanggal_expire.strftime('%d-%m-%Y') }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Status:</strong></td>
+                                    <td><span class="badge badge-danger">Expired</span></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div style="margin-top: 20px; text-align: center;">
+                            <a href="{{ url_for('perpanjangan') }}" class="btn-warning" style="display: inline-block; margin-right: 10px;">
+                                🔄 Perpanjang Membership
+                            </a>
+                            <a href="{{ url_for('scan_qrcode') }}" class="btn-submit" style="display: inline-block;">
+                                ← Kembali Scan
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="format-example">
+                    <p>📝 Contoh Format ID Member:</p>
+                    <div class="format-example-code">
+                        GYM-MG698144
+                    </div>
+                </div>
+                
+                <form method="POST" action="{{ url_for('scan_qrcode') }}">
+                    <div class="scan-form-group">
+                        <label for="qr_data">🔍 Masukkan atau Scan Kode QR:</label>
+                        <input 
+                            type="text" 
+                            id="qr_data" 
+                            name="qr_data" 
+                            placeholder="GYM-XXXXXX" 
+                            required 
+                            autofocus
+                            autocomplete="off"
+                        >
+                        <small style="color: var(--color-text-secondary); font-size: 13px; margin-top: 8px; display: block;">
+                            💡 Format yang benar: GYM-MG123456 (atau ketik langsung: mg123456)
+                        </small>
+                    </div>
+                    
+                    <button type="submit" class="btn-scan-submit">
+                        ✅ PROSES CHECK IN/OUT
+                    </button>
+                </form>
+                
+                <div class="scan-instructions">
+                    <h4>📋 Cara Menggunakan:</h4>
+                    <ol>
+                        <li>Minta member untuk menunjukkan QR Code mereka</li>
+                        <li>Ketik atau scan kode QR di form di atas</li>
+                        <li>Klik tombol "PROSES CHECK IN/OUT"</li>
+                        <li>Sistem otomatis mendeteksi check-in atau check-out</li>
+                        <li>Member yang sudah expired tidak bisa check-in</li>
+                    </ol>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            const themeIcon = document.getElementById('theme-icon');
+            
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '☀️';
+            }
+            
+            // Auto-focus input
+            const input = document.getElementById('qr_data');
+            if (input) {
+                input.focus();
+                
+                // Auto-uppercase dan format
+                input.addEventListener('input', function(e) {
+                    let value = e.target.value.toUpperCase();
+                    
+                    // Auto-add GYM- prefix
+                    if (value.length > 0 && !value.startsWith('GYM-')) {
+                        if (value.match(/^(MG)?[0-9]/)) {
+                            if (!value.startsWith('MG')) {
+                                value = 'GYM-MG' + value;
+                            } else {
+                                value = 'GYM-' + value;
+                            }
+                        }
+                    }
+                    
+                    e.target.value = value;
+                });
+                
+                // Visual feedback
+                input.addEventListener('input', function(e) {
+                    const value = e.target.value;
+                    
+                    if (value.match(/^GYM-MG[0-9]{6}$/)) {
+                        e.target.classList.add('valid');
+                        e.target.classList.remove('invalid');
+                    } else if (value.length > 0) {
+                        e.target.classList.add('invalid');
+                        e.target.classList.remove('valid');
+                    } else {
+                        e.target.classList.remove('valid', 'invalid');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+    <div class="nav-container">
+        <h1>🏋️ Muscle Gym</h1>
+        <div class="nav-content">
+            <ul>
+                <li><a href="{{ url_for('index') }}">🏠 Home</a></li>
+                <li><a href="{{ url_for('register') }}">➕ Register</a></li>
+                <li><a href="{{ url_for('perpanjangan') }}">🔄 Perpanjangan</a></li>
+                <li><a href="{{ url_for('laporan') }}">📊 Laporan</a></li>
+				<li><a href="{{ url_for('scan_qrcode') }}">📱 Scan QR</a></li>
+				<li><a href="{{ url_for('attendance_list') }}">📋 Kehadiran</a></li>
+
+            </ul>
+            <div class="user-info">
+                <a href="{{ url_for('profile') }}" class="user-name">👤 {{ session.nama_lengkap }}</a>
+                <a href="{{ url_for('logout') }}" class="btn-logout">🚪 Logout</a>
+            </div>
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <span id="theme-icon">🌙</span>
+            </button>
+        </div>
+    </div>
+</nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}
+        <div class="dashboard">
+            <h2>Dashboard Gym Management</h2>
+            
+            <!-- Statistics Cards -->
+            <div class="stats-container">
+                <div class="stat-card stat-active">
+                    <div class="stat-icon">✓</div>
+                    <div class="stat-info">
+                        <h3>{{ member_aktif }}</h3>
+                        <p>Member Aktif</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card stat-expired">
+                    <div class="stat-icon">✗</div>
+                    <div class="stat-info">
+                        <h3>{{ member_expired }}</h3>
+                        <p>Member Expired</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card stat-revenue">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-info">
+                        <h3>Rp {{ "{:,.0f}".format(total_pendapatan) }}</h3>
+                        <p>Total Pendapatan</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Member Akan Expired -->
+            <div class="table-section">
+                <h3 class="section-title">⚠️ Member Akan Expired (3 Hari Kedepan)</h3>
+                {% if member_akan_expired %}
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID Member</th>
+                                <th>Nama</th>
+                                <th>No. HP</th>
+                                <th>Type Member</th>
+                                <th>Tanggal Expire</th>
+                                <th>Sisa Hari</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in member_akan_expired %}
+                            {% set sisa_hari = (member.tanggal_expire - today).days %}
+                            <tr class="row-warning">
+                                <td>{{ member.member_id }}</td>
+                                <td>{{ member.nama }}</td>
+                                <td>{{ member.no_handphone }}</td>
+                                <td>{{ member.type_member.replace('_', ' ').title() }}</td>
+                                <td>{{ member.tanggal_expire.strftime('%d-%m-%Y') }}</td>
+                                <td><span class="badge badge-warning">{{ sisa_hari }} hari</span></td>
+                                <td>
+                                    <a href="{{ url_for('perpanjangan') }}" class="btn-small">Perpanjang</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <p>✓ Tidak ada member yang akan expired dalam 3 hari kedepan</p>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- List Member Aktif -->
+            <div class="table-section">
+                <h3 class="section-title">📋 List Member Aktif</h3>
+                {% if list_member_aktif %}
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID Member</th>
+                                <th>Nama</th>
+                                <th>Jenis Kelamin</th>
+                                <th>No. HP</th>
+                                <th>Type Member</th>
+                                <th>Tanggal Daftar</th>
+                                <th>Tanggal Expire</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in list_member_aktif %}
+                            {% set sisa_hari = (member.tanggal_expire - today).days %}
+                            <tr>
+                                <td>{{ member.member_id }}</td>
+                                <td>{{ member.nama }}</td>
+                                <td>{{ member.jenis_kelamin }}</td>
+                                <td>{{ member.no_handphone }}</td>
+                                <td>{{ member.type_member.replace('_', ' ').title() }}</td>
+                                <td>{{ member.tanggal_daftar.strftime('%d-%m-%Y') }}</td>
+                                <td>{{ member.tanggal_expire.strftime('%d-%m-%Y') }}</td>
+                                <td>
+                                    {% if sisa_hari <= 3 %}
+                                    <span class="badge badge-warning">{{ sisa_hari }} hari lagi</span>
+                                    {% elif sisa_hari <= 7 %}
+                                    <span class="badge badge-info">{{ sisa_hari }} hari lagi</span>
+                                    {% else %}
+                                    <span class="badge badge-success">Aktif</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('edit_member', member_id=member.member_id) }}" class="btn-edit">✏️ Edit</a>
+                                    <a href="{{ url_for('delete_confirm', member_id=member.member_id) }}" class="btn-delete">🗑️ Delete</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <p>Belum ada member aktif. Silakan daftarkan member baru.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endblock %}
+    </div>
+
+    <script>
+        // Theme Toggle Function
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        
+        // Load saved theme on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            const themeIcon = document.getElementById('theme-icon');
+            
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '☀️';
+            }
+        });
+    </script>
+</body>
+</html>

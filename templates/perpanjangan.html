@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perpanjangan Member - Gym Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <h1>🏋️ Muscle Gym</h1>
+            <div class="nav-content">
+                <ul>
+                    <li><a href="{{ url_for('index') }}">🏠 Home</a></li>
+                    <li><a href="{{ url_for('register') }}">➕ Register</a></li>
+                    <li><a href="{{ url_for('perpanjangan') }}">🔄 Perpanjangan</a></li>
+                    <li><a href="{{ url_for('laporan') }}">📊 Laporan</a></li>
+                    <li><a href="{{ url_for('scan_qrcode') }}">📱 Scan QR</a></li>
+                    <li><a href="{{ url_for('attendance_list') }}">📋 Kehadiran</a></li>
+                </ul>
+                <div class="user-info">
+                    <a href="{{ url_for('profile') }}" class="user-name">👤 {{ session.nama_lengkap }}</a>
+                    <a href="{{ url_for('logout') }}" class="btn-logout">🚪 Logout</a>
+                </div>
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <span id="theme-icon">🌙</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="form-container">
+            <h2>Form Perpanjangan Member</h2>
+            
+            <form method="POST" action="{{ url_for('perpanjangan') }}">
+                <div class="form-group">
+                    <label>Cari ID Member:</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" name="member_id" placeholder="Masukkan ID Member (contoh: MG123456)" required>
+                        <button type="submit" name="search" class="btn-search">Cari</button>
+                    </div>
+                </div>
+            </form>
+            
+            {% if member %}
+            <div class="member-info">
+                <h3>Data Member</h3>
+                <table class="info-table">
+                    <tr>
+                        <td><strong>ID Member:</strong></td>
+                        <td>{{ member.member_id }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Nama:</strong></td>
+                        <td>{{ member.nama }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Jenis Kelamin:</strong></td>
+                        <td>{{ member.jenis_kelamin }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Alamat:</strong></td>
+                        <td>{{ member.alamat }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>No. HP:</strong></td>
+                        <td>{{ member.no_handphone }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Pekerjaan:</strong></td>
+                        <td>{{ member.pekerjaan }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Type Member:</strong></td>
+                        <td>{{ member.type_member.replace('_', ' ').title() }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tanggal Daftar:</strong></td>
+                        <td>{{ member.tanggal_daftar.strftime('%d-%m-%Y') }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tanggal Expire:</strong></td>
+                        <td>{{ member.tanggal_expire.strftime('%d-%m-%Y') }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Biaya Bulanan:</strong></td>
+                        <td>Rp {{ "{:,.0f}".format(member.biaya_bulanan) }}</td>
+                    </tr>
+                </table>
+                
+                <form method="POST" action="{{ url_for('perpanjangan') }}">
+                    <input type="hidden" name="member_id" value="{{ member.member_id }}">
+                    <button type="submit" name="extend" class="btn-extend">Perpanjang Member</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            const themeIcon = document.getElementById('theme-icon');
+            
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '☀️';
+            }
+        });
+    </script>
+</body>
+</html>
